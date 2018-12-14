@@ -90,14 +90,14 @@ def main():
     epoch_lis = [i for i in range(1,5)]
 
     for epoch in range(1, 5):
-        train(model,device,train_loader,optimizer,criterion,epoch)
+        #train(model,device,train_loader,optimizer,criterion,epoch)
         test(model,device,test_loader,criterion,epoch,testloss_lis)
     
     plt.plot(epoch_lis, testloss_lis)
     plt.xlabel('epochs(k)')
     plt.ylabel('loss')
     plt.grid(True)
-    plt.savefig('test.jpg')
+    plt.savefig('Image Classification\\test.jpg')
     
 if __name__ == '__main__':
     main()
