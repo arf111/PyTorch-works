@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim 
 from torchvision import datasets, transforms
+import matplotlib.pyplot as plt
 
 class ConvNet(nn.Module):
     def __init__(self):
@@ -40,9 +41,10 @@ def train(model,device,train_loader,optimizer,criterion,epoch):
         optimizer.step()
 
         if batch_idx % 10 == 0:
-            print('Train epoch: ',epoch,' loss:',loss.item())
+            print('Train epoch: ',epoch,' loss: {:.4f}'.format(loss.item()),
+            ' batch done {}/{}'.format(batch_idx * len(data), len(train_loader.dataset)))
 
-def test(model,device,test_loader,criterion,epoch):
+def test(model,device,test_loader,criterion,epoch,testloss_lis):
     model.eval()
     test_loss = 0
     correct = 0
@@ -55,8 +57,10 @@ def test(model,device,test_loader,criterion,epoch):
             correct += prediction.eq(target.view_as(prediction)).sum().item()
     
     test_loss /= len(test_loader.dataset)
+    testloss_lis.append(test_loss)
 
-    print('\n Avg loss: ',test_loss,' Accuracy {}/{}'.format(correct,len(test_loader.dataset)),' ({:,0f}%)'.format(100 * correct / len(test_loader.dataset)))
+    print('\n Avg loss: ',test_loss,' Accuracy {}/{}'.format(correct,len(test_loader.dataset)),
+    ' ({:.0f}%)'.format(100 * correct / len(test_loader.dataset)))
 
         
 def main():
@@ -81,10 +85,19 @@ def main():
     model = model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     criterion = nn.NLLLoss()
+    
+    testloss_lis = []
+    epoch_lis = [i for i in range(1,5)]
 
     for epoch in range(1, 5):
         train(model,device,train_loader,optimizer,criterion,epoch)
-        test(model,device,test_loader,criterion,epoch)
+        test(model,device,test_loader,criterion,epoch,testloss_lis)
+    
+    plt.plot(epoch_lis, testloss_lis)
+    plt.xlabel('epochs(k)')
+    plt.ylabel('loss')
+    plt.grid(True)
+    plt.savefig('test.jpg')
     
 if __name__ == '__main__':
     main()
