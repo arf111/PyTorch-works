@@ -51,10 +51,14 @@ def test(model,device,test_loader,criterion,epoch,testloss_lis):
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
+            
             output = model(data)
             test_loss += criterion(output,target).item()
-            prediction = output.max(1, keepdim=True)[1]
-            correct += prediction.eq(target.view_as(prediction)).sum().item()
+
+            prediction = torch.topk(output,1)[1].item() 
+            # last e [1] rakhsi as topk 0th index e list er highest values rakhe
+            # aar 1st index e list er highest value gular index thake..we need index
+            correct += ( prediction == target.item() )
     
     test_loss /= len(test_loader.dataset)
     testloss_lis.append(test_loss)
